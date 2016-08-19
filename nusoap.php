@@ -2475,7 +2475,7 @@ class soap_transport_http extends nusoap_base {
 		if ($this->authtype && ($this->authtype != 'certificate')) {
 			if ($this->username) {
 				$this->debug('set cURL username/password');
-				$this->setCurlOption(CURLOPT_USERPWD, "$this->username:Config::$DB_Pass");
+				$this->setCurlOption(CURLOPT_USERPWD, "$this->username:$this->password");
 			}
 			if ($this->authtype == 'basic') {
 				$this->debug('set cURL for Basic authentication');
@@ -2645,7 +2645,7 @@ class soap_transport_http extends nusoap_base {
 			$this->debug('Authorization header not set for ntlm');
 		}
 		$this->username = $username;
-		Config::$DB_Pass = $password;
+		$this->password = $password;
 		$this->authtype = $authtype;
 		$this->digestRequest = $digestRequest;
 	}
@@ -3192,7 +3192,7 @@ class soap_transport_http extends nusoap_base {
 
 				// should have (at least) qop, realm, nonce
  				if (isset($digestRequest['nonce'])) {
- 					$this->setCredentials($this->username, Config::$DB_Pass, 'digest', $digestRequest);
+ 					$this->setCredentials($this->username, $this->password, 'digest', $digestRequest);
  					$this->tryagain = true;
  					return false;
  				}
@@ -4759,7 +4759,7 @@ class wsdl extends nusoap_base {
 				$tr->setProxy($this->proxyhost,$this->proxyport,$this->proxyusername,$this->proxypassword);
 			}
 			if ($this->authtype != '') {
-				$tr->setCredentials($this->username, Config::$DB_Pass, $this->authtype, array(), $this->certRequest);
+				$tr->setCredentials($this->username, $this->password, $this->authtype, array(), $this->certRequest);
 			}
 			$tr->setEncoding('gzip, deflate');
 			$wsdl_string = $tr->send('', $this->timeout, $this->response_timeout);
@@ -5108,7 +5108,7 @@ class wsdl extends nusoap_base {
 		$this->debug("setCredentials username=$username authtype=$authtype certRequest=");
 		$this->appendDebug($this->varDump($certRequest));
 		$this->username = $username;
-		Config::$DB_Pass = $password;
+		$this->password = $password;
 		$this->authtype = $authtype;
 		$this->certRequest = $certRequest;
 	}
@@ -7488,7 +7488,7 @@ class nusoap_client extends nusoap_base  {
 	function loadWSDL() {
 		$this->debug('instantiating wsdl class with doc: '.$this->wsdlFile);
 		$this->wsdl = new wsdl('',$this->proxyhost,$this->proxyport,$this->proxyusername,$this->proxypassword,$this->timeout,$this->response_timeout,$this->curl_options,$this->use_curl);
-		$this->wsdl->setCredentials($this->username, Config::$DB_Pass, $this->authtype, $this->certRequest);
+		$this->wsdl->setCredentials($this->username, $this->password, $this->authtype, $this->certRequest);
 		$this->wsdl->fetchWSDL($this->wsdlFile);
 		$this->checkWSDL();
 	}
@@ -7547,7 +7547,7 @@ class nusoap_client extends nusoap_base  {
 					$http->setProxy($this->proxyhost,$this->proxyport,$this->proxyusername,$this->proxypassword);
 				}
                 if($this->authtype != '') {
-					$http->setCredentials($this->username, Config::$DB_Pass, $this->authtype, array(), $this->certRequest);
+					$http->setCredentials($this->username, $this->password, $this->authtype, array(), $this->certRequest);
 				}
 				if($this->http_encoding != ''){
 					$http->setEncoding($this->http_encoding);
@@ -7739,7 +7739,7 @@ class nusoap_client extends nusoap_base  {
 		$this->debug("setCredentials username=$username authtype=$authtype certRequest=");
 		$this->appendDebug($this->varDump($certRequest));
 		$this->username = $username;
-		Config::$DB_Pass = $password;
+		$this->password = $password;
 		$this->authtype = $authtype;
 		$this->certRequest = $certRequest;
 	}
@@ -7834,7 +7834,7 @@ class nusoap_client extends nusoap_base  {
 		// transfer other state
 		$proxy->soap_defencoding = $this->soap_defencoding;
 		$proxy->username = $this->username;
-		$proxy->password = Config::$DB_Pass;
+		$proxy->password = $this->password;
 		$proxy->authtype = $this->authtype;
 		$proxy->certRequest = $this->certRequest;
 		$proxy->requestHeaders = $this->requestHeaders;
